@@ -20,14 +20,16 @@ public class App extends Application implements ISymPosChangeObserver {
     private final int sceneWidth = 1200, sceneHeight = 800;
     public Scene scene;
     private AbstractWorldMap map1,map2;
-    private GridPane gridStrict,gridBorderless;
+    private GridPane gridStrict,gridBorderless,gridGenes;
     private BorderPane borderPane;
     private SimulationEngine engineStrict,engineBorderless;
     private final Graf grafStrict=new Graf("Strict"), grafBorderless=new Graf("Borderless");
     private int mapWidth, mapHeight, startEnergy, moveEnergy, jungleRatio, plantEnergy, dayStrict=0,dayBorderless=0;
-    private boolean magicFive,clicked1=false,clicked2=false;
+    private boolean magicFive=false,clicked1=false,clicked2=false;
     Button btn;
     TextField widthTxt, heightTxt, startEnergyTxt, moveEnergyTxt, jungleRatioTxt, plantEnergyTxt;
+    Genes dominantGenStrict, dominantGenBorderless;
+    SaveCSV saveCsvStrict=new SaveCSV("StrictStats"),saveCsvBorderless=new SaveCSV("BorderlesstStats");
 
 
     public void init() {
@@ -118,10 +120,11 @@ public class App extends Application implements ISymPosChangeObserver {
                 gridStrict.getRowConstraints().add(new RowConstraints(20));
                 gridBorderless.getRowConstraints().add(new RowConstraints(20));}
 
-            draw(gridStrict,map1);
-            draw(gridBorderless,map1);
+            drawGrid(gridStrict,map1);
+            drawGrid(gridBorderless,map2);
             borderPane = new BorderPane();
 
+            
             Button stopBtn1 = new Button("STOP/START Strict");
             stopBtn1.setOnAction(e -> {
                 if(clicked1){ engineThread1.resume(); clicked1=false; }
@@ -135,6 +138,7 @@ public class App extends Application implements ISymPosChangeObserver {
             gridStrict1.add(hbBtn1,0,1);
             borderPane.setLeft(gridStrict1);
 
+            
             Button stopBtn2 = new Button("STOP/START Borderless");
             stopBtn2.setOnAction(e -> {
                 if(clicked2){ engineThread2.resume(); clicked2=false; }
@@ -148,11 +152,19 @@ public class App extends Application implements ISymPosChangeObserver {
             gridBorderless2.add(hbBtn2,0,1);
             borderPane.setRight(gridBorderless2);
 
-            GridPane gridChart = new GridPane();
-            gridChart.add(grafStrict.getLineChart(),0,0);
-            gridChart.add(grafBorderless.getLineChart(),1,0);
-            gridChart.setAlignment(Pos.BASELINE_CENTER);
-            borderPane.setCenter(gridChart);
+            
+            GridPane gridStats = new GridPane();
+            gridStats.add(grafStrict.getLineChart(),0,0);
+            gridStats.add(grafBorderless.getLineChart(),1,0);
+            gridStats.setAlignment(Pos.BASELINE_CENTER);
+            borderPane.setCenter(gridStats);
+
+
+            gridGenes = new GridPane();
+            gridGenes.setAlignment(Pos.BASELINE_CENTER);
+            drawGenes();
+            borderPane.setBottom(gridGenes);
+
 
             scene = new Scene(borderPane, sceneWidth, sceneHeight);
             primaryStage.setScene(scene);
@@ -161,10 +173,24 @@ public class App extends Application implements ISymPosChangeObserver {
         });
         primaryStage.setScene(scene);
         primaryStage.show();
+
+    }
+    
+    public void drawGenes(){
+        gridGenes.getChildren().clear();
+        gridGenes.setHgap(30);
+        dominantGenStrict = map1.genDomination();
+        dominantGenBorderless = map2.genDomination();
+        Label label1 = new Label(dominantGenStrict.toString());
+        GridPane.setHalignment(label1, HPos.CENTER);
+        gridGenes.add(label1,0,0);
+        Label label2 = new Label(dominantGenBorderless.toString());
+        GridPane.setHalignment(label2, HPos.CENTER);
+        gridGenes.add(label2,1,0);
     }
 
 
-    public void draw(GridPane grid,AbstractWorldMap m){
+    public void drawGrid(GridPane grid,AbstractWorldMap m){
         grid.getChildren().clear();
         grid.setGridLinesVisible(false);
         grid.setGridLinesVisible(true);
@@ -198,16 +224,26 @@ public class App extends Application implements ISymPosChangeObserver {
     @Override
     public void positionChanged(AbstractWorldMap m){
         if(m.isStrict()) {
-            Platform.runLater( () -> draw(gridStrict,m) );
+            Platform.runLater( () -> {drawGrid(gridStrict,m);drawGenes();} );
             dayStrict++;
-            grafStrict.newAnimalData(dayStrict, map1.getAnimalsQuantity());
-            grafStrict.newGrassData(dayStrict, map1.getGrassQuantity());
+            int[] data= {dayStrict,map1.getAnimalsQuantity(),map1.getGrassQuantity(),map1.averageEnergy(),map1.averageLifeTime()};
+            grafStrict.newAnimalData(dayStrict, data[1]);
+            grafStrict.newGrassData(dayStrict, data[2]);
+            grafStrict.newEnergyData(dayStrict, data[3]);
+            grafStrict.newLiveTimeData(dayStrict, data[4]);
+            saveCsvStrict.saveToCsv(data);
+            dominantGenStrict = map1.genDomination();
         }
         else{
-            Platform.runLater( () -> draw(gridBorderless,m) );
+            Platform.runLater( () -> drawGrid(gridBorderless,m) );
             dayBorderless++;
-            grafBorderless.newAnimalData(dayBorderless, map2.getAnimalsQuantity());
-            grafBorderless.newGrassData(dayBorderless, map2.getGrassQuantity());
+            int[] data= {dayBorderless ,map2.getAnimalsQuantity(),map2.getGrassQuantity(),map2.averageEnergy(),map2.averageLifeTime()};
+            grafBorderless.newAnimalData(dayBorderless, data[1]);
+            grafBorderless.newGrassData(dayBorderless, data[2]);
+            grafBorderless.newEnergyData(dayBorderless, data[3]);
+            grafBorderless.newLiveTimeData(dayBorderless, data[4]);
+            saveCsvBorderless.saveToCsv(data);
+            dominantGenBorderless = map2.genDomination();
         }
     }
 

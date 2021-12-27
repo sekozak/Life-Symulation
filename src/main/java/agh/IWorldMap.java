@@ -44,8 +44,8 @@ public interface IWorldMap {
     Object objectAt(Vector2d position);
 
     void plantgrass();
-    void removeDeadAnimals(ArrayList<Animal> animals);
+    void removeDeadAnimals(ArrayList<Animal> animals,int day);
     void eat(int plantEnergy);
-    void copulation(ArrayList<Animal> animals,int startEnergy);
+    void copulation(ArrayList<Animal> animals,int startEnergy,int day);
     boolean isStrict();
 }

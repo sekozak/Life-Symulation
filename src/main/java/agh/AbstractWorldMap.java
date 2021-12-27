@@ -8,6 +8,8 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
     protected Vector2d ll = new Vector2d(0,0), ur, jungleLowerLeft, jungleUpRight;
     protected int ratio,magic5count=0;
 
+    protected int deadAnimals=0,deadSum=0;
+
     @Override
     public void positionChanged(Vector2d oldPosition, Vector2d newPosition, Animal pet){
         removeAnimal(oldPosition, pet);
@@ -32,7 +34,7 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
     }
 
     @Override
-    public void removeDeadAnimals(ArrayList<Animal> animalslist){
+    public void removeDeadAnimals(ArrayList<Animal> animalslist,int day){
         ArrayList<Animal> dead = new ArrayList<>();
         for(Animal animal : animalslist){
             if( animal.isDead() ) {
@@ -41,11 +43,15 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
                 removeAnimal(animal.getPosition(), animal);
             }
         }
-        for(Animal animal : dead) animalslist.remove(animal);
+        for(Animal animal : dead){
+            animalslist.remove(animal);
+            deadSum+=day-animal.getBirthDay();
+        }
+        deadAnimals+=dead.size();
     }
 
     @Override
-    public void copulation(ArrayList<Animal> animals,int startEnergy){
+    public void copulation(ArrayList<Animal> animals,int startEnergy, int day){
         for( ArrayList<Animal> list : animalsmap.values() ){
             if( list.size()>1 ) {
                 int fatherE=0, motherE=0;
@@ -66,7 +72,7 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
                 }
 
                 if(motherE>startEnergy*0.5) {
-                    Animal child = father.sex(mother);
+                    Animal child = father.sex(mother,day);
                     animalsmap.get(child.getPosition()).add(child);
                     child.addObserver(this);
                     animals.add(child);
@@ -75,12 +81,12 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
         }
     }
 
-    public void magic5(int startEnergy){
+    public void magic5(int startEnergy, int day){
         magic5count++;
         for(ArrayList<Animal> list : animalsmap.values()){
             for(Animal animal : list){
                 if( freeSpace().size()>0 ){
-                    Animal duplicate = new Animal(this, randomFreeSpace(freeSpace()), startEnergy );
+                    Animal duplicate = new Animal(this, randomFreeSpace(freeSpace()), startEnergy, day);
                     duplicate.setGen(animal.getGen());
                     place(duplicate);
                 }
@@ -190,9 +196,9 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
     }
 
     public void jungleSize(){
-        int a=ur.x/ratio, b=ur.y/ratio;
-        jungleLowerLeft = new Vector2d((ur.x-a)/2,(ur.y-b)/2);
-        jungleUpRight = new Vector2d( jungleLowerLeft.x+a ,jungleLowerLeft.y+b);
+        int a=(ur.x+1)/ratio, b=(ur.y+1)/ratio;
+        jungleLowerLeft = new Vector2d((ur.x-a+1)/2,(ur.y-b+1)/2);
+        jungleUpRight = new Vector2d( jungleLowerLeft.x+a-1 ,jungleLowerLeft.y+b-1);
     }
 
 
@@ -201,10 +207,43 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
         return new MapVisualizer(this).draw(ll,ur);
     }
 
+//    ----------statystyki-----------
     public int getAnimalsQuantity() {
         return animalsmap.size();
     }
     public int getGrassQuantity() {
         return grassmap.size();
+    }
+
+    public Genes genDomination(){
+        Map<Genes, Integer> map = new HashMap<Genes, Integer>();
+        int max=0;
+        Genes gen = new Genes(0);
+        for(ArrayList<Animal> list: animalsmap.values() ){
+            for(Animal animal : list){
+                Genes g=animal.getGen();
+                if( !map.containsKey(g) ) map.put(g,1);
+                else map.put(g,map.get(g)+1);
+                if( map.get(g)>max){ max=map.get(g); gen=g; }
+            }
+        }
+        return gen;
+    }
+
+    public int averageEnergy(){
+        int count=0,sum=0;
+        if(animalsmap.size()==0) return 0;
+        for(ArrayList<Animal> list: animalsmap.values() ) {
+            for (Animal animal : list) {
+                count++;
+                sum+=animal.getEnergy();
+            }
+        }
+        return sum/count;
+    }
+
+    public int averageLifeTime(){
+        if(deadAnimals==0) return 0;
+        return deadSum/deadAnimals;
     }
 }

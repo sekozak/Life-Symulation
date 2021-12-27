@@ -20,7 +20,7 @@ public class SimulationEngine implements Runnable {
         this.moveEnergy = moveEnergy;
         this.plantEnergy = plantEnergy;
         this.magicFive=magicFive;
-        days=20;
+        days=200;
         amountOfA=4;
         delay=1000;
 
@@ -42,7 +42,7 @@ public class SimulationEngine implements Runnable {
         for ( int i=0; i<amountOfA; i++) {
             int a = generator.nextInt( width +1);
             int b = generator.nextInt( height +1);
-            Animal animal = new Animal(map, new Vector2d(a,b), startEnergy );
+            Animal animal = new Animal(map, new Vector2d(a,b), startEnergy ,0);
             if ( map.place(animal) ) animals.add(animal);
             else i--;
         }
@@ -54,7 +54,7 @@ public class SimulationEngine implements Runnable {
         System.out.print(map);
         for (int j=0; j<days; j++) {
             System.out.println(j+1);
-            map.removeDeadAnimals(animals);
+            map.removeDeadAnimals(animals,j);
             animals.removeIf(Animal::isDead);
 
             for(Animal a : animals) {
@@ -65,10 +65,10 @@ public class SimulationEngine implements Runnable {
             map.eat(plantEnergy);
 
             if(magicFive){
-                if(animals.size()==5) map.magic5(startEnergy);
+                if(animals.size()==5) map.magic5(startEnergy,j);
             }
             else {
-                map.copulation(animals, startEnergy);
+                map.copulation(animals, startEnergy, j);
             }
 
             map.plantgrass();

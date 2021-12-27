@@ -10,6 +10,10 @@ public class Genes {
         this.gen  = new ArrayList<>();
         generategen();
     }
+    public Genes(int x) {
+        this.gen  = new ArrayList<>();
+        for(int i=0;i<32;i++) gen.add(0);
+    }
     public Genes(Genes mother, Genes father, Integer fPower) {
         this.gen  = new ArrayList<>();
         double rand = random();
@@ -41,4 +45,9 @@ public class Genes {
         return gen.get( (int) (random()*32) );
     }
 
+    @Override
+    public String toString() {
+        return "Gen={"+ gen +
+                '}';
+    }
 }

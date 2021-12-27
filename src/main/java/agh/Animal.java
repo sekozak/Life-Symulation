@@ -14,16 +14,18 @@ public class Animal implements IMapElement {
     private final IWorldMap map;
     private List<IPositionChangeObserver> observers = new ArrayList<>();
     private Genes gen;
-    private int energy,startEnergy;
+    private int energy;
+    private final int startEnergy,birthDay;
 
 
-    public Animal(IWorldMap map, Vector2d initialPosition, int startEnergy) {
+    public Animal(IWorldMap map, Vector2d initialPosition, int startEnergy, int birthDay) {
         this.position = initialPosition;
         this.orientation = orientation.random();
         this.map = map;
         this.energy = startEnergy;
         this.startEnergy = startEnergy;
         this.gen = new Genes();
+        this.birthDay=birthDay;
     }
 
 
@@ -36,7 +38,7 @@ public class Animal implements IMapElement {
     }
 
 
-    public Animal sex(Animal parent){
+    public Animal sex(Animal parent,int day){
         int energyMoher = this.energy;
         int energyFather = parent.energy;
         int p = energyFather/(energyFather+energyMoher)*32;
@@ -45,7 +47,7 @@ public class Animal implements IMapElement {
         parent.energy *= 0.75;
 
         Genes childGen = new Genes( this.gen, parent.gen, p );
-        Animal child = new Animal(this.map, this.position, childenergy);
+        Animal child = new Animal(this.map, this.position, childenergy, day);
         child.gen = childGen;
 
         return child;
@@ -99,9 +101,10 @@ public class Animal implements IMapElement {
 
     public int getEnergy() { return energy; }
 
-    public void setGen(Genes gen) {
-        this.gen = gen;
-    }
+    public int getBirthDay(){ return birthDay; }
+
+    public void setGen(Genes gen){ this.gen = gen; }
+
     public Genes getGen() {
         return gen;
     }
