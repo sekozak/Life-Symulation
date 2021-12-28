@@ -6,7 +6,7 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
     protected Map<Vector2d, ArrayList<Animal> > animalsmap = new HashMap<>();
     protected Map<Vector2d, Grass> grassmap = new HashMap<>();
     protected Vector2d ll = new Vector2d(0,0), ur, jungleLowerLeft, jungleUpRight;
-    protected int ratio,magic5count=0;
+    protected int ratio;
 
     protected int deadAnimals=0,deadSum=0;
 
@@ -76,20 +76,22 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
                     animalsmap.get(child.getPosition()).add(child);
                     child.addObserver(this);
                     animals.add(child);
+                    father.setChildren(father.getChildren()+1);
+                    mother.setChildren(mother.getChildren()+1);
                 }
             }
         }
     }
 
-    public void magic5(int startEnergy, int day){
-        magic5count++;
-        for(ArrayList<Animal> list : animalsmap.values()){
-            for(Animal animal : list){
-                if( freeSpace().size()>0 ){
-                    Animal duplicate = new Animal(this, randomFreeSpace(freeSpace()), startEnergy, day);
-                    duplicate.setGen(animal.getGen());
-                    place(duplicate);
-                }
+    public void magic5(ArrayList<Animal> animals,int startEnergy, int day){
+        ArrayList<Animal> tmplist = new ArrayList<>(animals);
+        for(Animal animal : tmplist){
+            if( freeSpace().size()>0 ){
+                Animal duplicate = new Animal(this, randomFreeSpace(freeSpace()), startEnergy, day);
+                duplicate.setGen(animal.getGen());
+
+                place(duplicate);
+                animals.add(duplicate);
             }
         }
     }
@@ -209,7 +211,9 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
 
 //    ----------statystyki-----------
     public int getAnimalsQuantity() {
-        return animalsmap.size();
+        int count=0;
+        for(ArrayList<Animal> list: animalsmap.values()){ count+=list.size(); }
+        return count;
     }
     public int getGrassQuantity() {
         return grassmap.size();
@@ -245,5 +249,17 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
     public int averageLifeTime(){
         if(deadAnimals==0) return 0;
         return deadSum/deadAnimals;
+    }
+
+    public int averageChildren(){
+        int count=0,sum=0;
+        if(animalsmap.size()==0) return 0;
+        for(ArrayList<Animal> list: animalsmap.values() ) {
+            for (Animal animal : list) {
+                count++;
+                sum+=animal.getChildren();
+            }
+        }
+        return sum/count;
     }
 }

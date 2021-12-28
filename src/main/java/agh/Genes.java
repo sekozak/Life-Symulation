@@ -27,7 +27,7 @@ public class Genes {
                 else gen.add(father.gen.get(i));
             }
         }
-
+//        gen.sort();
     }
 
     private void generategen(){

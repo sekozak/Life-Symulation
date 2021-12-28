@@ -2,12 +2,25 @@ package agh;
 import java.io.*;
 
 public class SaveCSV {
-    String[] names={"Day: ",", animals: ",", grass: ",", averageEnergy: ",", avgLifeTime: "};
+    String names="Day, animals, grass, averageEnergy, avgLifeTime, avgChildren \n";
     File file;
-    int animalsAvg=0,grassAvg=0,energyAvg=0,days=0,lifeAvg=0;
+    int animalsAvg=0,grassAvg=0,energyAvg=0,days=0,lifeAvg=0,childAvg=0;
 
     public SaveCSV(String nazwaPliku) {
-        this.file =new File(nazwaPliku+".csv");
+
+
+        try {
+            this.file =new File(nazwaPliku+".csv");
+            FileOutputStream fos = new FileOutputStream(file);
+            OutputStreamWriter osw = new OutputStreamWriter(fos,"UTF-8");
+            Writer writer = new BufferedWriter(osw);
+            StringBuilder sb = new StringBuilder();
+            writer.append(names);
+            writer.close();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 
@@ -18,22 +31,21 @@ public class SaveCSV {
             Writer writer = new BufferedWriter(osw);
             StringBuilder sb = new StringBuilder();
 
-            int i=0;
-            for(String s : names){
-                sb.append(s);
-                sb.append(dane[i]);
-                i++;
+            for(int d : dane){
+                sb.append(d);
+                sb.append(',');
             }
             sb.append("\n");
+
+            writer.append(sb.toString());
+            writer.close();
 
             days=dane[0];
             animalsAvg+=dane[1];
             grassAvg+=dane[2];
             energyAvg+=dane[3];
             lifeAvg+=dane[4];
-
-            writer.append(sb.toString());
-            writer.close();
+            childAvg+=dane[5];
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -47,19 +59,20 @@ public class SaveCSV {
             Writer writer = new BufferedWriter(osw);
             StringBuilder sb = new StringBuilder();
 
-            sb.append("AvgAnimals: ");
-            sb.append(animalsAvg/days);
-            sb.append(", AvgGrass: ");
-            sb.append(grassAvg/days);
-            sb.append(", AvgEnergy: ");
-            sb.append(energyAvg/days);
-            sb.append(", AvgLifeTime: ");
-            sb.append(lifeAvg/days);
+            sb.append( "Avg," );
+            sb.append( animalsAvg/days );
+            sb.append( ",");
+            sb.append( grassAvg/days );
+            sb.append( ",");
+            sb.append( energyAvg/days );
+            sb.append( ",");
+            sb.append( lifeAvg/days );
+            sb.append( ",");
+            sb.append( childAvg/days );
+            sb.append( ",");
 
             writer.append(sb.toString());
             writer.close();
-            System.out.println("done!");
-
         }
         catch (IOException e) {
             e.printStackTrace();

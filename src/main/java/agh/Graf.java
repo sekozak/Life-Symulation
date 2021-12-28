@@ -12,6 +12,7 @@ public class Graf {
     private final XYChart.Series grass = new XYChart.Series();
     private final XYChart.Series energy = new XYChart.Series();
     private final XYChart.Series lifeTime = new XYChart.Series();
+    private final XYChart.Series children = new XYChart.Series();
     final LineChart<Number,Number> lineChart = new LineChart<Number,Number>(xAxis,yAxis);
 
 
@@ -31,6 +32,9 @@ public class Graf {
     public void newLiveTimeData(int day,int quantity){
         lifeTime.getData().add(new XYChart.Data(day, quantity));
     }
+    public void newChildrenData(int day,int quantity){
+        children.getData().add(new XYChart.Data(day, quantity));
+    }
 
     public Graf(String type){
         lineChart.setMaxSize(300,300);
@@ -40,15 +44,16 @@ public class Graf {
         lineChart.setTitle("WYKRES "+type);
         //defining a animals
         animals.setName("Animals");
-        energy.setName("averageEnergy");
+        energy.setName("avgEnergy");
         grass.setName("Grass");
-        lifeTime.setName("lifeTime");
+        lifeTime.setName("avgLifeTime");
+        children.setName("avgChildren");
 
         lineChart.getData().add(animals);
         lineChart.getData().add(energy);
         lineChart.getData().add(grass);
         lineChart.getData().add(lifeTime);
-
+        lineChart.getData().add(children);
     }
 
 }

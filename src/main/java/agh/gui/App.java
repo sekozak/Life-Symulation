@@ -24,21 +24,23 @@ public class App extends Application implements ISymPosChangeObserver {
     private BorderPane borderPane;
     private SimulationEngine engineStrict,engineBorderless;
     private final Graf grafStrict=new Graf("Strict"), grafBorderless=new Graf("Borderless");
-    private int mapWidth, mapHeight, startEnergy, moveEnergy, jungleRatio, plantEnergy, dayStrict=0,dayBorderless=0;
-    private boolean magicFive=false,clicked1=false,clicked2=false;
-    Button btn;
+    private int mapWidth=6, mapHeight=6, startEnergy=8, moveEnergy=0, jungleRatio=2, plantEnergy=8, dayStrict=0,dayBorderless=0;
+    private boolean magicFiveStrict=false, magicFiveBorderless=false, strictThreadStoped=false, borderlessThreadStoped2=false;
+    Button submitBtn,magicBtnS,magicBtnB;
     TextField widthTxt, heightTxt, startEnergyTxt, moveEnergyTxt, jungleRatioTxt, plantEnergyTxt;
     Genes dominantGenStrict, dominantGenBorderless;
     SaveCSV saveCsvStrict=new SaveCSV("StrictStats"),saveCsvBorderless=new SaveCSV("BorderlesstStats");
 
 
     public void init() {
+        //        -------formularz startowy--------
         GridPane grid = new GridPane();
         grid.setAlignment(Pos.CENTER);
         grid.setHgap(10);
         grid.setVgap(10);
         grid.setPadding(new Insets(25, 25, 25, 25));
 
+        
         Text scenetitle = new Text("I WASTED A LOT OF PRECIOUS TIME :)");
         scenetitle.setFont(Font.font("Tahoma", FontWeight.NORMAL, 12));
         grid.add(scenetitle, 0, 0, 6, 1);
@@ -79,30 +81,65 @@ public class App extends Application implements ISymPosChangeObserver {
         jungleRatioTxt = new TextField();
         grid.add(jungleRatioTxt, 1, 6);
 
-        btn = new Button("SUBMIT");
+        submitBtn = new Button("SUBMIT");
         HBox hbBtn = new HBox(10);
         hbBtn.setAlignment(Pos.BOTTOM_RIGHT);
-        hbBtn.getChildren().add(btn);
+        hbBtn.getChildren().add(submitBtn);
         grid.add(hbBtn, 1, 8);
 
-        scene = new Scene(grid, sceneWidth, sceneHeight);
+        
+//        ----------przyciski do magic5-------
+        GridPane gridLeft = new GridPane();
+        gridLeft.setAlignment(Pos.CENTER);
+        magicBtnS = new Button("ON Magic");
+        HBox hbBtn1 = new HBox(20);
+        hbBtn1.setAlignment(Pos.CENTER);
+        hbBtn1.getChildren().add(magicBtnS);
+        Label magicLeft = new Label("Active magicFive for Strict");
+        gridLeft.add(hbBtn1, 0, 1);
+        gridLeft.add(magicLeft, 0, 0);
+        magicBtnS.setOnAction(e -> {magicFiveStrict=true;});
+
+
+        GridPane gridRight = new GridPane();
+        gridRight.setAlignment(Pos.CENTER);
+        magicBtnB = new Button("ON Magic");
+        HBox hbBtn2 = new HBox(20);
+        hbBtn2.setAlignment(Pos.CENTER);
+        hbBtn2.getChildren().add(magicBtnB);
+        Label magicRight = new Label("Active magicFive for Borderless");
+        gridRight.add(hbBtn2, 0, 1);
+        gridRight.add(magicRight, 0, 0);
+        magicBtnB.setOnAction(e -> {magicFiveBorderless=true; });
+
+
+
+//        -----ustawinie elem na planszy-------
+        borderPane = new BorderPane();
+        borderPane.setCenter(grid);
+        borderPane.setLeft(gridLeft);
+        borderPane.setRight(gridRight);
+        borderPane.setMargin(gridLeft,new Insets(0,0,0,100));
+        borderPane.setMargin(gridRight,new Insets(0,100,0,0));
+        
+        scene = new Scene(borderPane, sceneWidth, sceneHeight);
     }
 
 
     @Override
     public void start(Stage primaryStage) {
-        btn.setOnAction(event -> {
-            mapWidth=Integer.parseInt(widthTxt.getText());
-            mapHeight=Integer.parseInt(heightTxt.getText());
-            startEnergy=Integer.parseInt(startEnergyTxt.getText());
-            moveEnergy=Integer.parseInt(moveEnergyTxt.getText());
-            jungleRatio=Integer.parseInt(jungleRatioTxt.getText());
-            plantEnergy=Integer.parseInt(plantEnergyTxt.getText());
+        submitBtn.setOnAction(event -> {
+//            mapWidth=Integer.parseInt(widthTxt.getText());
+//            mapHeight=Integer.parseInt(heightTxt.getText());
+//            startEnergy=Integer.parseInt(startEnergyTxt.getText());
+//            moveEnergy=Integer.parseInt(moveEnergyTxt.getText());
+//            jungleRatio=Integer.parseInt(jungleRatioTxt.getText());
+//            plantEnergy=Integer.parseInt(plantEnergyTxt.getText());
 
             map1 = new StrictMap(mapWidth,mapHeight, jungleRatio);
             map2 = new FlexMap(mapWidth,mapHeight, jungleRatio);
-            engineStrict = new SimulationEngine(map1, startEnergy, mapWidth, mapHeight ,moveEnergy, plantEnergy, magicFive);
-            engineBorderless = new SimulationEngine(map2, startEnergy, mapWidth, mapHeight ,moveEnergy, plantEnergy, magicFive);
+            engineStrict = new SimulationEngine(map1, startEnergy, mapWidth, mapHeight ,moveEnergy, plantEnergy, magicFiveStrict);
+            engineBorderless = new SimulationEngine(map2, startEnergy, mapWidth, mapHeight ,moveEnergy, plantEnergy, magicFiveBorderless);
             engineStrict.addMap(this);
             engineBorderless.addMap(this);
 
@@ -111,6 +148,10 @@ public class App extends Application implements ISymPosChangeObserver {
             engineThread1.start();
             engineThread2.start();
 
+            borderPane = new BorderPane();
+
+            
+//            ----------tworzenie plansz---------
             gridStrict = new GridPane();
             gridBorderless = new GridPane();
             for(int i=0; i<=mapWidth+1; i++){
@@ -122,13 +163,13 @@ public class App extends Application implements ISymPosChangeObserver {
 
             drawGrid(gridStrict,map1);
             drawGrid(gridBorderless,map2);
-            borderPane = new BorderPane();
 
             
+//            --------------plansza strict------------
             Button stopBtn1 = new Button("STOP/START Strict");
             stopBtn1.setOnAction(e -> {
-                if(clicked1){ engineThread1.resume(); clicked1=false; }
-                else{ engineThread1.suspend(); clicked1=true; }
+                if(strictThreadStoped){ engineThread1.resume(); strictThreadStoped=false; }
+                else{ engineThread1.suspend(); strictThreadStoped=true; }
             });
             HBox hbBtn1 = new HBox(10);
             hbBtn1.setAlignment(Pos.BOTTOM_CENTER);
@@ -139,10 +180,11 @@ public class App extends Application implements ISymPosChangeObserver {
             borderPane.setLeft(gridStrict1);
 
             
+//            -----------plansza borderless--------
             Button stopBtn2 = new Button("STOP/START Borderless");
             stopBtn2.setOnAction(e -> {
-                if(clicked2){ engineThread2.resume(); clicked2=false; }
-                else{ engineThread2.suspend(); clicked2=true; }
+                if(borderlessThreadStoped2){ engineThread2.resume(); borderlessThreadStoped2=false; }
+                else{ engineThread2.suspend(); borderlessThreadStoped2=true; }
             });
             HBox hbBtn2 = new HBox(10);
             hbBtn2.setAlignment(Pos.BOTTOM_CENTER);
@@ -153,17 +195,19 @@ public class App extends Application implements ISymPosChangeObserver {
             borderPane.setRight(gridBorderless2);
 
             
+//            ----------wykresy-------
             GridPane gridStats = new GridPane();
             gridStats.add(grafStrict.getLineChart(),0,0);
             gridStats.add(grafBorderless.getLineChart(),1,0);
             gridStats.setAlignment(Pos.BASELINE_CENTER);
             borderPane.setCenter(gridStats);
 
-
+            
+//            -----------geny---------
             gridGenes = new GridPane();
             gridGenes.setAlignment(Pos.BASELINE_CENTER);
             drawGenes();
-            borderPane.setBottom(gridGenes);
+            borderPane.setTop(gridGenes);
 
 
             scene = new Scene(borderPane, sceneWidth, sceneHeight);
@@ -174,6 +218,11 @@ public class App extends Application implements ISymPosChangeObserver {
         primaryStage.setScene(scene);
         primaryStage.show();
 
+        primaryStage.setOnCloseRequest(e ->{
+            saveCsvBorderless.addAvg();
+            saveCsvStrict.addAvg();
+            System.exit(0);
+        });
     }
     
     public void drawGenes(){
@@ -220,28 +269,35 @@ public class App extends Application implements ISymPosChangeObserver {
         }
     }
 
+    @Override
+    public void magicFiveAlert(AbstractWorldMap m){
+
+    }
+
 
     @Override
     public void positionChanged(AbstractWorldMap m){
         if(m.isStrict()) {
             Platform.runLater( () -> {drawGrid(gridStrict,m);drawGenes();} );
             dayStrict++;
-            int[] data= {dayStrict,map1.getAnimalsQuantity(),map1.getGrassQuantity(),map1.averageEnergy(),map1.averageLifeTime()};
+            int[] data= {dayStrict,map1.getAnimalsQuantity(),map1.getGrassQuantity(),map1.averageEnergy(),map1.averageLifeTime(), map1.averageChildren()};
             grafStrict.newAnimalData(dayStrict, data[1]);
             grafStrict.newGrassData(dayStrict, data[2]);
             grafStrict.newEnergyData(dayStrict, data[3]);
             grafStrict.newLiveTimeData(dayStrict, data[4]);
+            grafStrict.newChildrenData(dayStrict, data[5]);
             saveCsvStrict.saveToCsv(data);
             dominantGenStrict = map1.genDomination();
         }
         else{
             Platform.runLater( () -> drawGrid(gridBorderless,m) );
             dayBorderless++;
-            int[] data= {dayBorderless ,map2.getAnimalsQuantity(),map2.getGrassQuantity(),map2.averageEnergy(),map2.averageLifeTime()};
+            int[] data= {dayBorderless ,map2.getAnimalsQuantity(),map2.getGrassQuantity(),map2.averageEnergy(),map2.averageLifeTime(),map2.averageChildren()};
             grafBorderless.newAnimalData(dayBorderless, data[1]);
             grafBorderless.newGrassData(dayBorderless, data[2]);
             grafBorderless.newEnergyData(dayBorderless, data[3]);
             grafBorderless.newLiveTimeData(dayBorderless, data[4]);
+            grafBorderless.newChildrenData(dayBorderless, data[5]);
             saveCsvBorderless.saveToCsv(data);
             dominantGenBorderless = map2.genDomination();
         }

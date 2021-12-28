@@ -10,6 +10,7 @@ public class SimulationEngine implements Runnable {
     private final int startEnergy, width, height, moveEnergy, plantEnergy, days, amountOfA,delay;
     private final ArrayList<App> observers = new ArrayList<>();
     private final boolean magicFive;
+    private int magic5count=0;
 
 
     public SimulationEngine(AbstractWorldMap map, int startEnergy, int width, int height, int moveEnergy, int plantEnergy, boolean magicFive){
@@ -21,7 +22,7 @@ public class SimulationEngine implements Runnable {
         this.plantEnergy = plantEnergy;
         this.magicFive=magicFive;
         days=200;
-        amountOfA=4;
+        amountOfA=5;
         delay=1000;
 
         createAdamAndEva();
@@ -50,10 +51,10 @@ public class SimulationEngine implements Runnable {
 
     @Override
     public void run() {
-        map.plantgrass();
         System.out.print(map);
         for (int j=0; j<days; j++) {
             System.out.println(j+1);
+
             map.removeDeadAnimals(animals,j);
             animals.removeIf(Animal::isDead);
 
@@ -65,7 +66,10 @@ public class SimulationEngine implements Runnable {
             map.eat(plantEnergy);
 
             if(magicFive){
-                if(animals.size()==5) map.magic5(startEnergy,j);
+                if(animals.size()==5){ map.magic5(animals, startEnergy,j); magic5count++; }
+                if(magic5count==3){
+
+                }
             }
             else {
                 map.copulation(animals, startEnergy, j);

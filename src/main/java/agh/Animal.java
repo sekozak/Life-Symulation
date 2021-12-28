@@ -14,7 +14,7 @@ public class Animal implements IMapElement {
     private final IWorldMap map;
     private List<IPositionChangeObserver> observers = new ArrayList<>();
     private Genes gen;
-    private int energy;
+    private int energy,children=0;
     private final int startEnergy,birthDay;
 
 
@@ -105,9 +105,11 @@ public class Animal implements IMapElement {
 
     public void setGen(Genes gen){ this.gen = gen; }
 
-    public Genes getGen() {
-        return gen;
-    }
+    public Genes getGen(){ return gen; }
+
+    public int getChildren(){ return children; }
+
+    public void setChildren(int children){ this.children = children; }
 
     @Override
     public String toString() {
