@@ -1,5 +1,6 @@
 package agh;
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 
 public class SaveCSV {
     String names="Day, animals, grass, averageEnergy, avgLifeTime, avgChildren \n";
@@ -12,9 +13,8 @@ public class SaveCSV {
         try {
             this.file =new File(nazwaPliku+".csv");
             FileOutputStream fos = new FileOutputStream(file);
-            OutputStreamWriter osw = new OutputStreamWriter(fos,"UTF-8");
+            OutputStreamWriter osw = new OutputStreamWriter(fos, StandardCharsets.UTF_8);
             Writer writer = new BufferedWriter(osw);
-            StringBuilder sb = new StringBuilder();
             writer.append(names);
             writer.close();
 
@@ -27,7 +27,7 @@ public class SaveCSV {
     public void saveToCsv(int[] dane) {
         try {
             FileOutputStream fos = new FileOutputStream(file,true);
-            OutputStreamWriter osw = new OutputStreamWriter(fos,"UTF-8");
+            OutputStreamWriter osw = new OutputStreamWriter(fos, StandardCharsets.UTF_8);
             Writer writer = new BufferedWriter(osw);
             StringBuilder sb = new StringBuilder();
 
@@ -55,21 +55,23 @@ public class SaveCSV {
     public void addAvg() {
         try {
             FileOutputStream fos = new FileOutputStream(file,true);
-            OutputStreamWriter osw = new OutputStreamWriter(fos,"UTF-8");
+            OutputStreamWriter osw = new OutputStreamWriter(fos, StandardCharsets.UTF_8);
             Writer writer = new BufferedWriter(osw);
             StringBuilder sb = new StringBuilder();
 
-            sb.append( "Avg," );
-            sb.append( animalsAvg/days );
-            sb.append( ",");
-            sb.append( grassAvg/days );
-            sb.append( ",");
-            sb.append( energyAvg/days );
-            sb.append( ",");
-            sb.append( lifeAvg/days );
-            sb.append( ",");
-            sb.append( childAvg/days );
-            sb.append( ",");
+            if(days!=0) {
+                sb.append("Avg,");
+                sb.append(animalsAvg / days);
+                sb.append(",");
+                sb.append(grassAvg / days);
+                sb.append(",");
+                sb.append(energyAvg / days);
+                sb.append(",");
+                sb.append(lifeAvg / days);
+                sb.append(",");
+                sb.append(childAvg / days);
+                sb.append(",");
+            }
 
             writer.append(sb.toString());
             writer.close();

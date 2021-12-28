@@ -143,11 +143,10 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
         return null;
     }
 
-    public boolean place(Grass grass) {
+    public void place(Grass grass) {
         Vector2d q = grass.getPosition();
-        if ( isOccupied(q) || !q.follows(ll) || !q.precedes(ur) ) return false;
+        if ( isOccupied(q) || !q.follows(ll) || !q.precedes(ur) ) return;
         grassmap.put(q,grass);
-        return true;
     }
 
     @Override
@@ -220,7 +219,7 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
     }
 
     public Genes genDomination(){
-        Map<Genes, Integer> map = new HashMap<Genes, Integer>();
+        Map<Genes, Integer> map = new HashMap<>();
         int max=0;
         Genes gen = new Genes(0);
         for(ArrayList<Animal> list: animalsmap.values() ){

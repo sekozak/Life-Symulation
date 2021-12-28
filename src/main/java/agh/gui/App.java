@@ -20,11 +20,11 @@ public class App extends Application implements ISymPosChangeObserver {
     private final int sceneWidth = 1200, sceneHeight = 800;
     public Scene scene;
     private AbstractWorldMap map1,map2;
-    private GridPane gridStrict,gridBorderless,gridGenes;
+    private GridPane gridStrict,gridBorderless,gridGenes,alertGrid;
     private BorderPane borderPane;
     private SimulationEngine engineStrict,engineBorderless;
     private final Graf grafStrict=new Graf("Strict"), grafBorderless=new Graf("Borderless");
-    private int mapWidth=6, mapHeight=6, startEnergy=8, moveEnergy=0, jungleRatio=2, plantEnergy=8, dayStrict=0,dayBorderless=0;
+    private int mapWidth, mapHeight, startEnergy, moveEnergy, jungleRatio, plantEnergy, dayStrict,dayBorderless;
     private boolean magicFiveStrict=false, magicFiveBorderless=false, strictThreadStoped=false, borderlessThreadStoped2=false;
     Button submitBtn,magicBtnS,magicBtnB;
     TextField widthTxt, heightTxt, startEnergyTxt, moveEnergyTxt, jungleRatioTxt, plantEnergyTxt;
@@ -48,37 +48,37 @@ public class App extends Application implements ISymPosChangeObserver {
         Label widthL = new Label("Width:");
         grid.add(widthL, 0, 1);
 
-        widthTxt = new TextField();
+        widthTxt = new TextField("6");
         grid.add(widthTxt, 1, 1);
 
         Label heightL = new Label("Height:");
         grid.add(heightL, 0, 2);
 
-        heightTxt = new TextField();
+        heightTxt = new TextField("6");
         grid.add(heightTxt, 1, 2);
 
         Label startEnergyL = new Label("startEnergy:");
         grid.add(startEnergyL, 0, 3);
 
-        startEnergyTxt = new TextField();
+        startEnergyTxt = new TextField("6");
         grid.add(startEnergyTxt, 1, 3);
 
         Label moveEnergyL = new Label("moveEnergy:");
         grid.add(moveEnergyL, 0, 4);
 
-        moveEnergyTxt = new TextField();
+        moveEnergyTxt = new TextField("1");
         grid.add(moveEnergyTxt, 1, 4);
 
         Label plantEnergyL = new Label("plantEnergy:");
         grid.add(plantEnergyL, 0, 5);
 
-        plantEnergyTxt = new TextField();
+        plantEnergyTxt = new TextField("6");
         grid.add(plantEnergyTxt, 1, 5);
 
         Label jungleRatioL = new Label("jungleRatio:");
         grid.add(jungleRatioL, 0, 6);
 
-        jungleRatioTxt = new TextField();
+        jungleRatioTxt = new TextField("2");
         grid.add(jungleRatioTxt, 1, 6);
 
         submitBtn = new Button("SUBMIT");
@@ -98,7 +98,7 @@ public class App extends Application implements ISymPosChangeObserver {
         Label magicLeft = new Label("Active magicFive for Strict");
         gridLeft.add(hbBtn1, 0, 1);
         gridLeft.add(magicLeft, 0, 0);
-        magicBtnS.setOnAction(e -> {magicFiveStrict=true;});
+        magicBtnS.setOnAction(e -> magicFiveStrict=true);
 
 
         GridPane gridRight = new GridPane();
@@ -110,7 +110,7 @@ public class App extends Application implements ISymPosChangeObserver {
         Label magicRight = new Label("Active magicFive for Borderless");
         gridRight.add(hbBtn2, 0, 1);
         gridRight.add(magicRight, 0, 0);
-        magicBtnB.setOnAction(e -> {magicFiveBorderless=true; });
+        magicBtnB.setOnAction(e -> magicFiveBorderless=true);
 
 
 
@@ -119,8 +119,8 @@ public class App extends Application implements ISymPosChangeObserver {
         borderPane.setCenter(grid);
         borderPane.setLeft(gridLeft);
         borderPane.setRight(gridRight);
-        borderPane.setMargin(gridLeft,new Insets(0,0,0,100));
-        borderPane.setMargin(gridRight,new Insets(0,100,0,0));
+        BorderPane.setMargin(gridLeft,new Insets(0,0,0,100));
+        BorderPane.setMargin(gridRight,new Insets(0,100,0,0));
         
         scene = new Scene(borderPane, sceneWidth, sceneHeight);
     }
@@ -129,12 +129,13 @@ public class App extends Application implements ISymPosChangeObserver {
     @Override
     public void start(Stage primaryStage) {
         submitBtn.setOnAction(event -> {
-//            mapWidth=Integer.parseInt(widthTxt.getText());
-//            mapHeight=Integer.parseInt(heightTxt.getText());
-//            startEnergy=Integer.parseInt(startEnergyTxt.getText());
-//            moveEnergy=Integer.parseInt(moveEnergyTxt.getText());
-//            jungleRatio=Integer.parseInt(jungleRatioTxt.getText());
-//            plantEnergy=Integer.parseInt(plantEnergyTxt.getText());
+//            ------budowanie parametrow do symulacji-------
+            mapWidth=Integer.parseInt(widthTxt.getText());
+            mapHeight=Integer.parseInt(heightTxt.getText());
+            startEnergy=Integer.parseInt(startEnergyTxt.getText());
+            moveEnergy=Integer.parseInt(moveEnergyTxt.getText());
+            jungleRatio=Integer.parseInt(jungleRatioTxt.getText());
+            plantEnergy=Integer.parseInt(plantEnergyTxt.getText());
 
             map1 = new StrictMap(mapWidth,mapHeight, jungleRatio);
             map2 = new FlexMap(mapWidth,mapHeight, jungleRatio);
@@ -165,7 +166,7 @@ public class App extends Application implements ISymPosChangeObserver {
             drawGrid(gridBorderless,map2);
 
             
-//            --------------plansza strict------------
+//            --------------sekcja strict------------
             Button stopBtn1 = new Button("STOP/START Strict");
             stopBtn1.setOnAction(e -> {
                 if(strictThreadStoped){ engineThread1.resume(); strictThreadStoped=false; }
@@ -180,7 +181,7 @@ public class App extends Application implements ISymPosChangeObserver {
             borderPane.setLeft(gridStrict1);
 
             
-//            -----------plansza borderless--------
+//            -----------sekcja borderless--------
             Button stopBtn2 = new Button("STOP/START Borderless");
             stopBtn2.setOnAction(e -> {
                 if(borderlessThreadStoped2){ engineThread2.resume(); borderlessThreadStoped2=false; }
@@ -208,6 +209,13 @@ public class App extends Application implements ISymPosChangeObserver {
             gridGenes.setAlignment(Pos.BASELINE_CENTER);
             drawGenes();
             borderPane.setTop(gridGenes);
+
+
+//            ---------alert magic5-------
+            alertGrid = new GridPane();
+            alertGrid.setAlignment(Pos.CENTER);
+            alertGrid.setHgap(50);
+            borderPane.setBottom(alertGrid);
 
 
             scene = new Scene(borderPane, sceneWidth, sceneHeight);
@@ -271,14 +279,24 @@ public class App extends Application implements ISymPosChangeObserver {
 
     @Override
     public void magicFiveAlert(AbstractWorldMap m){
+        if(m.isStrict()){
+            Platform.runLater( () -> drawAlert("Strict",0) );
+        }
+        else{
+            Platform.runLater( () -> drawAlert("Borderless",1) );
+        }
+    }
 
+    private void drawAlert(String s, int i){
+        Label alert = new Label("MagicFive wystapilo juz 3 razy w "+s+"!!");
+        alertGrid.add(alert,i,0);
     }
 
 
     @Override
-    public void positionChanged(AbstractWorldMap m){
-        if(m.isStrict()) {
-            Platform.runLater( () -> {drawGrid(gridStrict,m);drawGenes();} );
+    public void positionChanged(AbstractWorldMap map){
+        if(map.isStrict()) {
+            Platform.runLater( () -> {drawGrid(gridStrict,map);drawGenes();} );
             dayStrict++;
             int[] data= {dayStrict,map1.getAnimalsQuantity(),map1.getGrassQuantity(),map1.averageEnergy(),map1.averageLifeTime(), map1.averageChildren()};
             grafStrict.newAnimalData(dayStrict, data[1]);
@@ -290,7 +308,7 @@ public class App extends Application implements ISymPosChangeObserver {
             dominantGenStrict = map1.genDomination();
         }
         else{
-            Platform.runLater( () -> drawGrid(gridBorderless,m) );
+            Platform.runLater( () -> {drawGrid(gridBorderless,map);drawGenes();} );
             dayBorderless++;
             int[] data= {dayBorderless ,map2.getAnimalsQuantity(),map2.getGrassQuantity(),map2.averageEnergy(),map2.averageLifeTime(),map2.averageChildren()};
             grafBorderless.newAnimalData(dayBorderless, data[1]);
