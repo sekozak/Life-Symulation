@@ -46,8 +46,5 @@ public class Genes {
     }
 
     @Override
-    public String toString() {
-        return "Gen={"+ gen +
-                '}';
-    }
+    public String toString(){ return "Gen="+ gen; }
 }

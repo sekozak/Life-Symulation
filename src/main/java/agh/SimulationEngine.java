@@ -13,7 +13,7 @@ public class SimulationEngine implements Runnable {
     private int magic5count=0,days=0;
 
 
-    public SimulationEngine(AbstractWorldMap map, int startEnergy, int width, int height, int moveEnergy, int plantEnergy, boolean magicFive){
+    public SimulationEngine(AbstractWorldMap map, int startEnergy, int width, int height, int moveEnergy, int plantEnergy, int amountOfA, boolean magicFive){
         this.map = map;
         this.startEnergy = startEnergy;
         this.width = width;
@@ -21,7 +21,7 @@ public class SimulationEngine implements Runnable {
         this.moveEnergy = moveEnergy;
         this.plantEnergy = plantEnergy;
         this.magicFive=magicFive;
-        amountOfA=5;
+        this.amountOfA=amountOfA;
         delay=1000;
 
         createAdamAndEva();
