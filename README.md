@@ -1,4 +1,5 @@
-# PoProject
+# Object oriented programming
+
 Animals Symulation - generator ewolucyjny
 
 Niniejsza treść została zaadaptowana na podstawie opisu oraz ilustracji przygotowanych przez Wojciecha Kosiora.
@@ -126,3 +127,5 @@ jest parametrem symulacji.
    pojedynczą epokę. Na końcu pliku mają pojawić się wartości uśrednione.
 8. Uruchomienie programu musi być możliwe za pomocą komendy Gradla. Implikuje to, że zależności aplikacji muszą być
    obsługiwane za pomocą Gradle'a.
+   
+  <img src="home.png"/><img src="main.png"/>
