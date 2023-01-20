@@ -1,6 +1,4 @@
-# Object oriented programming
-
-Animals Symulation - generator ewolucyjny
+# Life Symulation - generator ewolucyjny
 
 Niniejsza treść została zaadaptowana na podstawie opisu oraz ilustracji przygotowanych przez Wojciecha Kosiora.
 Inspiracją dla niego była z kolei książka "Land of Lisp" Conrada Barskiego, który zaś zainspirował się artykułem w
